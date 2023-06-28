@@ -2,8 +2,7 @@ package mainpack;
 
 import java.io.IOException;
 import java.net.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Scanner;
 
 public class UDPClient {
     private  final int PORT = 55555;
@@ -13,21 +12,23 @@ public class UDPClient {
 
         try (DatagramSocket socket = new DatagramSocket()){
 
-            // вводим ссобщение в консоли
+            // вводим ссобщение через консоль
+            Scanner scanner = new Scanner(System.in);
             System.out.print("Введите сообщение: ");
-            byte[] requestData = new byte[LENGHT];
-            System.in.read(requestData);
+            String message = scanner.nextLine();
 
-            // отправляем запрос
-            DatagramPacket requestPacket = new DatagramPacket(requestData, LENGHT, InetAddress.getByName("127.0.0.1"), PORT);
+            // формируем запрос и отправляем серверу
+            byte[] requestData = message.getBytes();
+            DatagramPacket requestPacket = new DatagramPacket(requestData, requestData.length, InetAddress.getByName("127.0.0.1"), PORT);
             socket.send(requestPacket);
 
-            // получаем от сервера
+            // получаем ответ от сервера
             byte[] buffer = new byte[LENGHT];
-            DatagramPacket responsePacket = new DatagramPacket(buffer, LENGHT);
+            DatagramPacket responsePacket = new DatagramPacket(buffer, buffer.length);
             socket.receive(responsePacket);
 
-            String response = new String(responsePacket.getData(), 0, responsePacket.getLength());
+            // извлекаем ответ от сервера и выводим в консоль
+            String response = new String(responsePacket.getData(), responsePacket.getOffset(), responsePacket.getLength());
             System.out.println(response);
 
         } catch (SocketException e) {
